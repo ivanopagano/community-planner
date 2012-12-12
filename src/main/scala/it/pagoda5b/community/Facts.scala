@@ -7,11 +7,8 @@ import org.drools.planner.api.domain.entity.PlanningEntity
 import org.drools.planner.api.domain.variable._
 
 //A person's gender
-@serializable
-sealed trait Gender
-@serializable
+sealed trait Gender extends Serializable
 case object Man extends Gender
-@serializable
 case object Woman extends Gender
 
 /**
@@ -20,7 +17,6 @@ case object Woman extends Gender
  * This is a community member, be it man or woman alike
  * It's a problem's fact
  */
-@serializable
 class Member(
 	val name: String,
 	val surname: String,
@@ -29,7 +25,7 @@ class Member(
 	@transient theSpouse: ⇒ Option[Member] = None,
 	val car: Boolean = false,
 	val residence: Boolean = false,
-	val available: Boolean = true) {
+	val available: Boolean = true) extends Serializable {
 
 	lazy val spouse = theSpouse
 
@@ -85,15 +81,24 @@ abstract class LiturgyPreparation(val peoplePreferred: Int, val ordinal: Int) {
 	@PlanningVariable //	@ValueRange(type=ValueRangeType.FROM_SOLUTION_PROPERTY, )
 	def getAssigned: Seq[Member] = assigned
 
+	/**
+	 * creates a clone of this preparation
+	 */
+	def duplicate: LiturgyPreparation
+
 	/*Instead of calculating other attributes to know if the liturgy is full 
 	 *or if there's need for a car or a house to prepare in, create a violated constraint with a score
   */
 }
 
 /**The holy mass*/
-case class Eucharist(val ord: Int) extends LiturgyPreparation(peoplePreferred = 3, ord)
+case class Eucharist(val ord: Int) extends LiturgyPreparation(peoplePreferred = 3, ord) {
+	def duplicate: LiturgyPreparation = copy(ord)
+}
 /**The reading of the holy bible*/
-case class Word(val ord: Int) extends LiturgyPreparation(peoplePreferred = 4, ord)
+case class Word(val ord: Int) extends LiturgyPreparation(peoplePreferred = 4, ord) {
+	def duplicate: LiturgyPreparation = copy(ord)
+}
 
 //There follows some of the problem constraints used to build the score
 
